@@ -16,7 +16,8 @@
       }
     },
     "storageAccountName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "workshopstgact"
     }
   },
   "variables": {
