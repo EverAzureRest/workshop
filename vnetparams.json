@@ -1,0 +1,66 @@
+{
+"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+"contentVersion": "1.0.0.0",
+"parameters": {
+    "vnetName": {
+        "value": "LH-INF-PD-VNET01"
+    },
+    "vnetAddressPrefix": {
+        "value": "10.248.0.0/16"
+    },
+    "subnet1Prefix": {
+        "value": "10.248.0.0/28"
+    },
+    "subnet1Name": {
+        "value": "GatewaySubnet"
+    },
+    "subnet2Prefix": {
+        "value": "10.248.0.32/27"
+    },
+    "subnet2Name": {
+        "value": "ExpressRoute"
+    },
+    "subnet3Prefix": {
+        "value": "10.248.36.0/22"
+    },
+    "subnet3Name": {
+        "value": "LhMgmtSubnet"
+    },
+    "subnet4Prefix": {
+        "value": "10.248.12.0/22"
+    },
+    "subnet4Name": {
+        "value": "SecuritySubnet"
+    },
+    "subnet5Prefix": {
+        "value": "10.248.16.0/22"
+    },
+    "subnet5Name": {
+        "value": "MedTrustSubnet"
+    },
+    "subnet6Prefix": {
+        "value": "10.248.20.0/22"
+    },
+    "subnet6Name": {
+        "value": "HighTrustSubnet"
+    },
+    "subnet7Prefix": {
+        "value": "10.248.4.0/22"
+    },
+    "subnet7Name": {
+        "value": "DMZSubnet"
+    },
+    "subnet8Prefix": {
+        "value": "10.248.8.0/29"
+    },
+    "subnet8Name": {
+        "value": "NoTrustSubnet"
+    },
+    "subnet9Prefix": {
+        "value": "10.248.32.0/22"
+    },
+    "subnet9Name": {
+        "value": "VDISubnet"
+    }   
+}
+}

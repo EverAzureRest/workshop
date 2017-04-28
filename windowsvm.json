@@ -1,0 +1,202 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Admin username"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password"
+      }
+    },
+    "imageSKU": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "2016-Datacenter",
+        "2016-Datacenter-with-Containers",
+        "2016-Nano-Server"
+      ],
+      "metadata": {
+        "description": "The Windows version for the VM"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "Standard_DS1_v2",
+      "allowedValues": [
+        "Basic_A0",
+        "Basic_A1",
+        "Basic_A2",
+        "Basic_A3",
+        "Basic_A4",
+        "Standard_A0",
+        "Standard_A1",
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_A5",
+        "Standard_A6",
+        "Standard_A7",
+        "Standard_D1",
+        "Standard_D2",
+        "Standard_D3",
+        "Standard_D4",
+        "Standard_D11",
+        "Standard_D12",
+        "Standard_D13",
+        "Standard_D14",
+        "Standard_DS1_v2"
+      ],
+      "metadata": {
+        "description": "Size of the virtual machine, must be available in the virtual machine's location"
+      }
+    },
+    "numberOfInstances": {
+      "type": "int",
+      "minValue": 1,
+      "defaultValue": 1,
+      "maxValue": 10,
+      "metadata": {
+        "description": "Number of VM instances to be created behind internal load balancer control"
+      }
+    },
+    "vmNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "String to prefix the generation of the VM Name"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string"
+    },
+    "virtualNetworkResourceGroup": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "storageAccountName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "vmNamePrefix": "[parameters('vmNamePrefix')]",
+    "imagePublisher": "MicrosoftWindowsServer",
+    "imageOffer": "WindowsServer",
+    "vhdStorageName": "[parameters('storageAccountName')]",
+    "virtualNetworkName": "[parameters('virtualNetworkName')]",
+    "vnetId": "[resourceid(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "virtualNetworkSubnetName": "[parameters('subnetName')]",
+    "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('virtualNetworkSubnetName'))]",
+    "networkInterfaceNamePrefix": "VNic"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('vmNamePrefix'), variables('networkInterfaceNamePrefix'), copyindex())]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "NetworkInterface"
+      },
+      "copy": {
+        "name": "nicLoop",
+        "count": "[parameters('numberOfInstances')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[concat(variables('vmNamePrefix'), 'ipconfig', copyindex())]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('vmNamePrefix'), copyindex())]",
+      "copy": {
+        "count": "[parameters('numberOfInstances')]",
+        "name": "virtualMachineLoop"
+      },
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "VirtualMachines"
+      },
+      "dependsOn": [
+        "nicLoop"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('vmNamePrefix'), copyIndex())]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('imageSKU')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat('http://', variables('vhdStorageName'), '.blob.core.windows.net/vhds/', variables('vmNamePrefix'), copyIndex(), 'osdisk', '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "datadisk",
+              "vhd": {
+                "uri": "[concat('http://', variables('vhdStorageName'), '.blob.core.windows.net/vhds/', variables('vmNamePrefix'), copyIndex(), 'datadisk', '.vhd')]"
+              },
+              "lun": 0,
+              "diskSizeGB": "100",
+              "createOption": "Empty",
+              "caching": "ReadWrite"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmNamePrefix'), variables('networkInterfaceNamePrefix'), copyindex()))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[concat('http://', variables('vhdStorageName'), '.blob.core.windows.net')]"
+          }
+        }
+      },
+      "resources": [
+
+      ]
+    }
+  ]
+}
