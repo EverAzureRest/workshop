@@ -1,6 +1,6 @@
 param(
     $vnetResourceGroupName = "workshopSimpleVnet",
-    $deploymentlocation = "WestUS2"
+    $deploymentlocation = "WestUS2",
     $subscriptionName
 )
 
@@ -23,4 +23,4 @@ if $subscriptionName (
 
 New-AzureRmResourceGroup -Name $vnetResourceGroupName -Location $deploymentlocation
 
-New-AzureRmResourceGroupDeployment -Name NATVM -ResourceGroupName $vnetResourceGroupName -Mode Incremental -Templatefile .\simplevnet.json -TemplateParameterObject $ParamHash
+New-AzureRmResourceGroupDeployment -Name workshopvnet -ResourceGroupName $vnetResourceGroupName -Mode Incremental -Templatefile .\simplevnet.json -TemplateParameterObject $ParamHash

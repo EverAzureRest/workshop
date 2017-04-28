@@ -1,7 +1,7 @@
 param(
     $vnetResourceGroupName = "workshopSimpleVnet",
-    $vmResourceGroupName = "workshopVMs"
-    $deploymentlocation = "WestUS2"
+    $vmResourceGroupName = "workshopVMs",
+    $deploymentlocation = "WestUS2",
     $subscriptionName
 )
 
@@ -11,6 +11,7 @@ $ParamHash = @{
     'vmNamePrefix' = "workshopvm0"
     'virtualNetworkName' = "workshopvnet"
     'virtualNetworkResourceGroup' = $vnetResourceGroupName
+    'storageAccountName' = "workshopstgact" #storage account names must be unique per region in Azure
     'subnetName' = "Subnet2"
 }
 
