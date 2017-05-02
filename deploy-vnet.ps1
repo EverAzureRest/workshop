@@ -6,7 +6,7 @@ param(
 
 $ParamHash = @{
     'vnetName' = "simpleVnet";
-    'vnetprefix' = "10.2.0.0/16";
+    'vnetAddressPrefix' = "10.2.0.0/16";
     'subnet1Name' = "Subnet1";
     'subnet1Prefix' = "10.2.1.0/24";
     'subnet2Name' = "Subnet2";
