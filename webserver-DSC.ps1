@@ -1,4 +1,4 @@
-Configuration WebTier
+Configuration SimpleWeb
 {
 Import-DscResource -ModuleName PSDesiredStateConfiguration
 Import-DscResource -ModuleName xNetworking
@@ -7,8 +7,6 @@ Import-DscResource -ModuleName cAzureStorage
 Import-DSCResource -ModuleName xWebAdministration
 
 $tempdir = "C:\Temp"
-$storagekey = Get-AutomationVariable -Name "sakey"
-$storageaccountname = Get-AutomationVariable -Name "saname"
 $destpath = "C:\inetpub\wwwroot\WebApp"
 
 Node WebServer
